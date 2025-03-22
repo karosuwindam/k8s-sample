@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry
+spec:
+  selector:
+    matchLabels:
+      name: registry
+  template:
+    metadata:
+      labels:
+        name: registry
+        app: registry
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                    - linux
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                    - arm
+                    - arm64
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        effect: NoSchedule
+      containers:
+      - name: registry
+        image: registry:2.8.3
+        env:
+        - name: REGISTRY_STORAGE_DELETE_ENABLED
+          value: "true"
+        ports:
+        - containerPort: 5000
+        resources:
+          limits:
+            cpu: 0.6
+            memory: 1Gi
+          requests:
+            cpu: 0.3
+            memory: 200Mi
+        volumeMounts:
+          - name: registry-st
+            mountPath: /var/lib/registry
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: registry-st
+          persistentVolumeClaim:
+            claimName: reg-disk-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: registry
+spec:
+  selector:
+    app: registry
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 31000
+  type: LoadBalancer

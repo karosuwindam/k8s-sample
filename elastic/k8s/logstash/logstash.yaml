@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  labels:
+    app: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+      - name: logstash
+        image: docker.elastic.co/logstash/logstash:8.15.5
+        ports:
+        - containerPort: 5044
+        env:
+        - name: ELASTICSEARCH_HOSTS
+          value: elasticsearch:9200
+        - name: LS_JAVA_OPTS
+          value: -Xms1g -Xmx1g
+        volumeMounts:
+        - name: logstash-conf
+          mountPath: /usr/share/logstash/pipeline/logstash.conf
+          subPath: logstash.conf
+      volumes:
+      - name: logstash-conf
+        configMap:
+          name: logstash-cm
+          items:
+            - key: logstash.conf
+              path: logstash.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+spec:
+  selector:
+    app: logstash
+  ports:
+  - protocol: TCP
+    port: 5044
+    targetPort: 5044
+  type: LoadBalancer
+  #type: ClusterIP
+  externalIPs:
+  - 192.168.0.91
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: logstash-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: logstash.kube.home
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: logstash
+            port:
+              number: 5044

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: victoriametrics
+  namespace: gf-space
+spec:
+  selector:
+    matchLabels:
+      app: victoriametrics
+  template:
+    metadata:
+      labels:
+        app: victoriametrics
+      annotations:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8428'
+        prometheus.io/path: /metrics
+        podinfo: "Prometheusのデータ保存用"
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                    - linux
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                    - arm64
+                # - key: kubernetes.io/hostname
+                #   operator: In
+                #   values:
+                #     - "k8s-worker-02"
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        effect: NoSchedule
+      containers:
+        - name: victoriametrics
+          image: victoriametrics/victoria-metrics:v1.93.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - --storageDataPath=/victoria-metrics-data
+            - --retentionPeriod=30d
+          ports:
+            - containerPort: 8428
+          resources:
+            limits:
+              cpu: 0.6
+              memory: 600Mi
+            requests:
+              cpu: 0.3
+              memory: 300Mi
+          volumeMounts:
+            - name: storage
+              mountPath: /victoria-metrics-data
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: victoriametrics-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: victoriametrics-service
+  namespace: gf-space
+spec:
+  selector:
+    app: victoriametrics
+  ports:
+    - port: 8428
+      targetPort: 8428
+  type: ClusterIP

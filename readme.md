@@ -55,7 +55,25 @@ echo sudo kubeadm join $(hostname -I|awk '{print $1}'):6443 \
 
 デフォルトだとRoleの部分がnone表示のため以下のコマンドでworkerに変更する
 ```
+kubectl label node/k8s-master-01 node-role.kubernetes.io/master=k8s-master-01
 kubectl label node/k8s-worker-01 node-role.kubernetes.io/worker=k8s-worker-01
 kubectl label node/k8s-worker-02 node-role.kubernetes.io/worker=k8s-worker-02
 kubectl label node/k8s-worker-03 node-role.kubernetes.io/worker=k8s-worker-03
 ```
+kubectl label nodes --all node.kubernetes.io/exclude-from-external-load-balancers-
+
+ロードバランサーでIPの外部発信をゆうこうにする場合
+kubectl label nodes --all node.kubernetes.io/exclude-from-external-load-balancers=true
+
+kubectl get configmap kube-proxy -n kube-system -o yaml | \
+sed -e "s/strictARP: false/strictARP: true/" | \
+kubectl apply -f - -n kube-system
+
+参考
+https://github.com/metallb/metallb/issues/1765
+https://github.com/metallb/metallb/issues/2676
+https://sigridjin.medium.com/kubernetes-deep-dive-loadbalancer-services-and-metallb-6a09d58fcdf0
+
+### configmap
+kubectl create -n kube-system configmap metricbeat-cm --from-file=metricbeat.yml
+

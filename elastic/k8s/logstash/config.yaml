@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-cm
+  labels:
+    k8s-app: metricbeat
+data:
+  logstash.conf: |-
+    input {
+      beats {
+        port => "5044"
+        # type => "beats"
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts    => [ "http://${ELASTICSEARCH_HOSTS}" ]
+        index    => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+        # user     => 'elastic'
+        # password => 'changeme'
+      }
+    }

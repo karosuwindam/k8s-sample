@@ -1,0 +1,21 @@
+---
+filebeat.prospectors: []
+filebeat.modules:
+  path: /etc/filebeat/modules.d/*.yml
+  reload.enabled: false
+filebeat.config.prospectors:
+  enabled: true
+  path: /etc/filebeat/conf.d/*.yml
+filebeat.registry_file: /var/log/containers/filebeat_registry
+logging.files:
+  path: "/etc/filebeat/log"
+logging.level: ${LOG_LEVEL}
+output.logstash:
+  enabled: true
+  hosts: ["${LOGSTASH_HOSTS}"]
+  index: "${INDEX_PREFIX}"
+  loadbalance: true
+  pipelining: 0
+  save_topology: false
+setup.kibana:
+    host: "${LOGSTASH_HOSTS}"

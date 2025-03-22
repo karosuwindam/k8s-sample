@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: reg-disk
+spec:
+  storageClassName: "registry"
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: k8s-worker-02
+    path: /usb-disk/usb1/nfs/registry
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: reg-disk-claim
+  labels:
+    app: reg-disk
+spec:
+  storageClassName: "registry"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi

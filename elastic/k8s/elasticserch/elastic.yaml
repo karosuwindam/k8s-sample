@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch
+  labels:
+    app: elasticsearch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                    - linux
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - k8s-worker-01
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                    - arm
+                    - arm64
+      containers:
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.15.5
+        ports:
+        - containerPort: 9200
+        resources:
+          limits:
+            memory: 15Gi
+          requests:
+            cpu: 2
+            memory: 12Gi
+        env:
+          - name: "bootstrap.memory_lock"
+            value: "true"
+          - name:  "cluster.routing.allocation.disk.threshold_enabled"
+            value: "false"
+          - name: "discovery.type"
+            value: "single-node"
+          - name: "xpack.security.enabled"
+            value: "false"
+          - name: "xpack.monitoring.collection.enabled"
+            value: "true"
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: es-data
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - chown -R 1000:1000 /usr/share/elasticsearch/data
+        - sysctl -w vm.max_map_count=262144
+        - chmod 777 /usr/share/elasticsearch/data
+        - chomod 777 /usr/share/elasticsearch/data/node
+        - chmod g+rwx /usr/share/elasticsearch/data
+        - chgrp 1000 /usr/share/elasticsearch/data
+        image: busybox:1.29.2
+        imagePullPolicy: IfNotPresent
+        name: set-dir-owner
+        resources: {}
+        securityContext:
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: es-data
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: es-data
+        hostPath:
+          path: /usb-disk/usb1/nfs/es
+        # persistentVolumeClaim:
+        #   claimName: es-disk-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+spec:
+  selector:
+    app: elasticsearch
+  ports:
+  - protocol: TCP
+    port: 9200
+    targetPort: 9200
+  #type: LoadBalancer
+  type: ClusterIP
