@@ -1,9 +1,9 @@
-TAG = 24.04
+TAG = 8.15.5
 DOCKER = docker
-NAME = k8s-master-01:31000/test/ubuntu
+NAME = 192.168.0.91:5000/elastic/metricbeat
 
 BUILD = buildctl
-BUILD_ADDR = tcp://k8s-master-01:31001 #arm64
+BUILD_ADDR = tcp://192.168.0.92:1234 #arm64
 BUILD_OPTION = "type=image,push=true,registry.insecure=true"
 
 TARGET = Dockerfile

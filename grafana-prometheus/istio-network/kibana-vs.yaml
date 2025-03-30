@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: kibana-virtualservice
+  namespace: elasticsearch
+spec:
+  hosts:
+  - "kibana.istio.home"
+  gateways:
+  - elasticsearch-gateway
+  http:
+  - route:
+    - destination:
+        host: kibana
+        port:
+          number: 5601

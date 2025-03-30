@@ -1,0 +1,25 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-istio
+  namespace: gf-space
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/instance: prometheus
+    app.kubernetes.io/version: v3.1.0
+    helm.sh/chart: prometheus-26.1.0
+    app.kubernetes.io/part-of: prometheus
+spec:
+  selector:
+    app: prometheus
+  sessionAffinity: None
+  ports:
+    - port: 9090
+      targetPort: 9090
+  # type: LoadBalancer
+  # type: ClusterIP
+  type: ExternalName
+  externalName: prometheus.istio-system
+---

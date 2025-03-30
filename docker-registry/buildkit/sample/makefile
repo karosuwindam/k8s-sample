@@ -1,6 +1,6 @@
-TAG = 8.15.5
+TAG = 24.04
 DOCKER = docker
-NAME = 192.168.0.91:5000/elastic/filebeat
+NAME = 192.168.0.91:5000/test/ubuntu
 
 BUILD = buildctl
 BUILD_ADDR = tcp://192.168.0.92:1234 #arm64

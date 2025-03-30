@@ -164,10 +164,11 @@ spec:
         effect: NoSchedule
       - key: node-role.kubernetes.io/control-plane
         effect: NoSchedule
+      hostNetwork: true
       containers:
       - name: promtail
-        image: grafana/promtail:2.8.11
-        # image: grafana/promtail:2.7.4
+        # image: grafana/promtail:2.8.11
+        image: grafana/promtail:2.9.13
         # image: grafana/promtail
         args:
         - --config.file=/etc/promtail/config.yaml

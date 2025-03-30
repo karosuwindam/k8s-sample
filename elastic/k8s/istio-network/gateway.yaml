@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: elasticsearch-gateway
+  namespace: elasticsearch
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+      - "*.elasticsearch.svc.cluster.local"
+      - "elastic.istio.home"
+      - "kibana.istio.home"

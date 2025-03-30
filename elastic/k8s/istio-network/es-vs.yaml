@@ -1,0 +1,33 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: elasticsearch-virtualservice
+  namespace: elasticsearch
+spec:
+  hosts:
+  - "elastic.istio.home"
+  gateways:
+  - elasticsearch-gateway
+  http:
+  - route:
+    - destination:
+        host: elasticsearch
+        port:
+          number: 9200
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: elasticsearch-virtualservice-in
+  namespace: elasticsearch
+spec:
+  hosts:
+  - elasticsearch.elasticsearch.svc.cluster.local
+  gateways:
+  - mesh
+  http:
+  - route:
+    - destination:
+        host: elasticsearch.elasticsearch.svc.cluster.local
+        port:
+          number: 9200

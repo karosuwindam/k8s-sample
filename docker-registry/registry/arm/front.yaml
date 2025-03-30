@@ -1,16 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: registry
+  namespace: registry
+  name: registry-front
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: 192.168.0.85
 spec:
   selector:
     matchLabels:
-      name: registry
+      name: registry-front
   template:
     metadata:
       labels:
-        name: registry
-        app: registry
+        name: registry-front
+        app: registry-front
     spec:
       affinity:
         nodeAffinity:
@@ -32,38 +35,44 @@ spec:
       - key: node-role.kubernetes.io/control-plane
         effect: NoSchedule
       containers:
-      - name: registry
-        image: registry:2.8.3
+      - name: registry-front
+        image: klausmeyer/docker-registry-browser:1.6.1
         env:
-        - name: REGISTRY_STORAGE_DELETE_ENABLED
-          value: "true"
+          - name: DOCKER_REGISTRY_URL
+            value: "http://registry:5000"
+          # - name: "REGISTRY_NAME"
+          #   value: "registry:5000"
+          - name: ENABLE_DELETE_IMAGES
+            value: "true"
+          - name: PUBLIC_REGISTRY_URL
+            value: "registry.bookserver.home"
+          # - name: REGISTRY_TITLE
+          #   value: "My registry"
         ports:
-        - containerPort: 5000
+        - containerPort: 8080
         resources:
           limits:
-            cpu: 0.6
-            memory: 1Gi
+            cpu: 0.4
+            memory: 500Mi
           requests:
-            cpu: 0.3
+            cpu: 0.2
             memory: 200Mi
-        volumeMounts:
-          - name: registry-st
-            mountPath: /var/lib/registry
       terminationGracePeriodSeconds: 30
-      volumes:
-        - name: registry-st
-          persistentVolumeClaim:
-            claimName: reg-disk-claim
+    #   hostNetwork: true
+    #   hostPID: true
 ---
 apiVersion: v1
 kind: Service
 metadata:
-    name: registry
+  name: registry-front
+  namespace: registry
 spec:
   selector:
-    app: registry
+    app: registry-front
   ports:
-    - port: 5000
-      targetPort: 5000
-      nodePort: 31000
-  type: LoadBalancer
+    - port: 8080
+      targetPort: 8080
+  # type: LoadBalancer
+  type: ClusterIP
+  # clusterIP: None
+---

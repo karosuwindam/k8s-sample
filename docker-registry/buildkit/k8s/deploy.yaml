@@ -5,6 +5,7 @@ metadata:
   labels:
     app: buildkitd
   name: buildkitd
+  namespace: registry
 spec:
   selector:
     matchLabels:
@@ -41,14 +42,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    name: buildkitd
+  name: buildkitd
+  namespace: registry
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.0.92
 spec:
   selector:
     app: buildkitd
   ports:
     - port: 1234
       targetPort: 1234
-      nodePort: 31001
+      # nodePort: 31001
   type: LoadBalancer
   # type: ClusterIP
   # clusterIP: None

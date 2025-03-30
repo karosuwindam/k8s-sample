@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: index-cm
+  labels:
+    k8s-app: metricbeat
+data:
+  index.html: |-
+    <html>
+    <head><title>helow world</title></head>
+    <body>
+    <center><h1>It's work</h1></center>
+    <hr><center>nginx</center>
+    </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: helloworld-csharp
+        version: v1
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: index-html
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html
+      volumes:
+      - name: index-html
+        configMap:
+          name: index-cm
+          items:
+            - key: index.html
+              path: index.html
+        
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: helloworld-csharp
+        version: v2
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: helloworld-csharp-service
+spec:
+  selector:
+    app: helloworld-csharp
+  ports:
+    - port: 80
+      targetPort: 80
+  type: LoadBalancer

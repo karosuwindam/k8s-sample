@@ -43,6 +43,7 @@ spec:
         effect: NoSchedule
       - effect: NoSchedule
         operator: Exists
+      hostNetwork: true
       containers:
       - args:
         - --path.sysfs=/host/sys
@@ -52,7 +53,7 @@ spec:
         - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/pods/.+)($|/)
         - --collector.netclass.ignored-devices=^(veth.*)$
         name: node-exporter
-        image: prom/node-exporter:v1.7.0
+        image: prom/node-exporter:v1.9.0
         ports:
           - containerPort: 9100
             protocol: TCP

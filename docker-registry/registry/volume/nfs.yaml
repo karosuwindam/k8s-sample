@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: reg-disk
+  namespace: registry
 spec:
   storageClassName: "registry"
   capacity:
@@ -18,6 +19,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: reg-disk-claim
+  namespace: registry
   labels:
     app: reg-disk
 spec:

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: elasticsearch
+  namespace: elasticsearch
   labels:
     app: elasticsearch
 spec:
@@ -54,6 +55,8 @@ spec:
             value: "false"
           - name: "xpack.monitoring.collection.enabled"
             value: "true"
+          - name: ES_JAVA_OPTS
+            value: "-Xms6000m -Xmx7500m"
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
           name: es-data
@@ -62,12 +65,12 @@ spec:
       - command:
         - sh
         - -c
-        - chown -R 1000:1000 /usr/share/elasticsearch/data
+        - chown -R 1000:1000 /usr/share/elasticsearch/data /usr/share/elasticsearch/plugins
         - sysctl -w vm.max_map_count=262144
-        - chmod 777 /usr/share/elasticsearch/data
+        - chmod 777 /usr/share/elasticsearch/data /usr/share/elasticsearch/plugins
         - chomod 777 /usr/share/elasticsearch/data/node
-        - chmod g+rwx /usr/share/elasticsearch/data
-        - chgrp 1000 /usr/share/elasticsearch/data
+        - chmod g+rwx /usr/share/elasticsearch/data /usr/share/elasticsearch/plugins
+        - chgrp 1000 /usr/share/elasticsearch/data /usr/share/elasticsearch/plugins
         image: busybox:1.29.2
         imagePullPolicy: IfNotPresent
         name: set-dir-owner
@@ -79,6 +82,19 @@ spec:
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
           name: es-data
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: es-p-data
+      # - name: plugins-install
+      #   image: docker.elastic.co/elasticsearch/elasticsearch:8.15.5
+      #   command: ['sh', '-c']
+      #   args:
+      #   - |
+      #     rm -rf /usr/share/elasticsearch/plugins/*; /usr/share/elasticsearch/bin/elasticsearch-plugin install http://10.0.0.1:1880/analysis-kuromoji-8.15.5.zip
+      #   volumeMounts:
+      #   - mountPath: /usr/share/elasticsearch/data
+      #     name: es-data
+      #   - name: es-p-data
+      #     mountPath: /usr/share/elasticsearch/plugins
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
@@ -89,11 +105,17 @@ spec:
           path: /usb-disk/usb1/nfs/es
         # persistentVolumeClaim:
         #   claimName: es-disk-claim
+      - name: es-p-data
+        hostPath:
+          path: /usb-disk/usb1/nfs/es-plugins
+        # persistentVolumeClaim:
+        #   claimName: es-p-disk-claim
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: elasticsearch
+  namespace: elasticsearch
 spec:
   selector:
     app: elasticsearch

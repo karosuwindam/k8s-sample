@@ -35,11 +35,11 @@ spec:
                 #   operator: In
                 #   values:
                 #     - "k8s-worker-02"
-      tolerations:
-      - key: node-role.kubernetes.io/master
-        effect: NoSchedule
-      - key: node-role.kubernetes.io/control-plane
-        effect: NoSchedule
+      # tolerations:
+      # - key: node-role.kubernetes.io/master
+      #   effect: NoSchedule
+      # - key: node-role.kubernetes.io/control-plane
+        # effect: NoSchedule
       containers:
         - name: victoriametrics
           image: victoriametrics/victoria-metrics:v1.93.1
