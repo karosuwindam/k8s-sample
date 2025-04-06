@@ -165,6 +165,7 @@ spec:
       - key: node-role.kubernetes.io/control-plane
         effect: NoSchedule
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: promtail
         # image: grafana/promtail:2.8.11

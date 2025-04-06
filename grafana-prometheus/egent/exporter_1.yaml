@@ -44,6 +44,7 @@ spec:
       - effect: NoSchedule
         operator: Exists
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - args:
         - --path.sysfs=/host/sys

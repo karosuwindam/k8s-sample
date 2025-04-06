@@ -123,6 +123,10 @@ data:
           regex: (.+)
           target_label: __metrics_path__
           replacement: /api/v1/nodes/$1/proxy/metrics
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_node_address_Hostname
+          target_label: node
 
       - job_name: 'kubernetes-nodes-cadvisor'
         scheme: https
@@ -141,6 +145,10 @@ data:
           regex: (.+)
           target_label: __metrics_path__
           replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_node_address_Hostname
+          target_label: node
 
       - job_name: kubernetes-service-endpoints
         honor_labels: true

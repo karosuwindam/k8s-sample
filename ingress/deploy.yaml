@@ -277,7 +277,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: ingress-nginx-admission
-subjects:istio-system
+subjects:
 - kind: ServiceAccount
   name: ingress-nginx-admission
   namespace: ingress-nginx
