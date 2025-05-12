@@ -56,6 +56,10 @@ spec:
             protocol: TCP
           - containerPort: 8405
             protocol: TCP
+          - containerPort: 5044
+            protocol: TCP
+          - containerPort: 5000
+            protocol: TCP
         resources:
           limits:
             cpu: 250m

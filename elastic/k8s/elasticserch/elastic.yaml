@@ -14,6 +14,11 @@ spec:
     metadata:
       labels:
         app: elasticsearch
+      annotations:
+        ulimits.nri.containerd.io/container.sleep: |
+          - type: memlock
+            hard: -1
+            soft: -1
     spec:
       affinity:
         nodeAffinity:
@@ -55,8 +60,8 @@ spec:
             value: "false"
           - name: "xpack.monitoring.collection.enabled"
             value: "true"
-          - name: ES_JAVA_OPTS
-            value: "-Xms6000m -Xmx7500m"
+            # - name: ES_JAVA_OPTS
+            #value: "-Xms6000m -Xmx7500m"
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
           name: es-data

@@ -1,0 +1,22 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+ name: allow-nginx-service-to-nginx
+ namespace: default
+spec:
+ selector:
+   matchLabels:
+     app: nginx
+ action: ALLOW
+ rules:
+ - from:
+   - source:
+      # namespaces:
+      #   - default
+      principals:
+       - cluster.local/ns/elasticsearch/sa/filebeat
+      #   - nginx-service
+   to:
+   - operation:
+       ports: ["80"]
+

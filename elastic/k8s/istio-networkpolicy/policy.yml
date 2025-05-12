@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: elasticsearch-allow
+  namespace: elasticsearch
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: elasticsearch
+  ingress:
+  - ports:
+    - port: 9200
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: logstash-allow
+  namespace: elasticsearch
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: logstash
+  ingress:
+  - ports:
+    - port: 5044
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kibana-allow
+  namespace: elasticsearch
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: kibana
+  ingress:
+  - ports:
+    - port: 5601
+      protocol: TCP

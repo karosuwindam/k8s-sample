@@ -50,3 +50,18 @@ data:
         option      ssl-hello-chk
         server             kuberentes ingress-nginx-controller.ingress-nginx.svc.cluster.local:443 check
         #server             kuberentes 192.168.0.90:443 check
+    frontend logstash-in
+        bind    logstash.kube.home:5044
+        mode    tcp
+        default_backend   logstash-out
+    backend logstash-out
+        balance           roundrobin
+        #server            kubernetes logstash.elasticsearch.svc.cluster.local:5044 check
+        server            kubernetes 192.168.0.80:5044 check
+    frontend registry-in
+        bind   registry.kube.home:5000
+        mode   tcp
+        default_backend   registry-out
+    backend registry-out
+        balance          roundrobin
+        server           kubernetes registry.registry.svc.cluster.local:5000 check

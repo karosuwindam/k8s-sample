@@ -27,12 +27,6 @@ kubectl create -f custom-resources.yaml
 kubectl get pods -n calico-system
 ```
 
-containerd config default | sed 's/SystemdCgroup = false/SystemdCgroup = true/'| sudo tee /etc/containerd/config.toml
-
-
-kubeadm join 192.168.0.50:6443 --token growrs.2zo6neb4q8ilx6ll \
-        --discovery-token-ca-cert-hash sha256:025ad5fe513f20661312a50c2b29832670db104a75d4927eb2b9bb8717a78c20 
-
 
 ## metaldbによるサービスを導入
 以下のコマンドでmetallbを導入する
